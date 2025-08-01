@@ -6,15 +6,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 import java.io.IOException;
@@ -27,12 +26,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/h2-console/**").permitAll()
-                .anyRequest().authenticated())
-            .addFilter(new TokenAuthFilter())
-            .headers(headers -> headers.frameOptions().disable());
+        http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .anyRequest().authenticated())
+                .addFilterBefore(new TokenAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+                .headers(headers -> headers.frameOptions().disable());
+
         return http.build();
     }
 
@@ -43,7 +43,7 @@ public class SecurityConfig {
 
         @Override
         public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-                throws AuthenticationException, IOException {
+                throws IOException {
             String authHeader = request.getHeader("Authorization");
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token ausente");
@@ -54,7 +54,8 @@ public class SecurityConfig {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token inválido");
                 return null;
             }
-            return new UsernamePasswordAuthenticationToken("user", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+            return new UsernamePasswordAuthenticationToken("user", null,
+                    List.of(new SimpleGrantedAuthority("ROLE_USER")));
         }
 
         @Override
