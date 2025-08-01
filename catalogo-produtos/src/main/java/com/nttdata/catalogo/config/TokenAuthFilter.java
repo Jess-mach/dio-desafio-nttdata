@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,7 +16,8 @@ import java.util.List;
 
 public class TokenAuthFilter extends OncePerRequestFilter {
 
-    private static final String TOKEN = "9177ed1d-81bf-480f-81ee-1c038b9bec69"; // Token fixo — altere se quiser
+    @Value("${token.catalog}")
+    private String tokenCatalog; // Token fixo — altere se quiser
 
     private final List<AntPathRequestMatcher> permitidos = List.of(
             new AntPathRequestMatcher("/swagger-ui/**"),
@@ -41,7 +43,7 @@ public class TokenAuthFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            if (TOKEN.equals(token)) {
+            if (tokenCatalog.equals(token)) {
                 var auth = new UsernamePasswordAuthenticationToken(
                         "usuario", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
                 SecurityContextHolder.getContext().setAuthentication(auth);
