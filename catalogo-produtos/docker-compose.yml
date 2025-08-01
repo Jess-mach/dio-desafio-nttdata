@@ -4,3 +4,5 @@ services:
     build: .
     ports:
       - "8100:8100"
+    environment:
+      - SPRING_PROFILES_ACTIVE=default

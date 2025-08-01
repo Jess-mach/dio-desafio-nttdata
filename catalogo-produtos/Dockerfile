@@ -1,4 +1,4 @@
 FROM eclipse-temurin:21-jdk-alpine
-VOLUME /tmp
-COPY target/catalogo-produtos-0.0.1-SNAPSHOT.jar app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+WORKDIR /app
+COPY target/catalogo-produtos-1.0.0.jar app.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
