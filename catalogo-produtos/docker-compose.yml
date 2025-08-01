@@ -1,0 +1,6 @@
+version: '3.8'
+services:
+  catalogo-produtos:
+    build: .
+    ports:
+      - "8100:8100"
