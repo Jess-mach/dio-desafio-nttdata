@@ -7,20 +7,35 @@ import java.math.BigDecimal;
 public class ProdutoRequest {
 
     @Schema(description = "Nome do produto", example = "Notebook")
-    private String nome;
+    private String name;
 
     @Schema(description = "Descrição do produto", example = "Notebook com 16GB RAM e SSD")
-    private String descricao;
+    private String description;
 
     @Schema(description = "Preço do produto", example = "2999.90")
-    private BigDecimal preco;
+    private BigDecimal price;
 
-    public String getNome() { return nome; }
-    public void setNome(String nome) { this.nome = nome; }
+    public String getName() {
+        return name;
+    }
 
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public BigDecimal getPreco() { return preco; }
-    public void setPreco(BigDecimal preco) { this.preco = preco; }
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

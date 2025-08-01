@@ -25,7 +25,7 @@ public class ProdutoController {
     @Operation(summary = "Cadastrar novo produto")
     public ResponseEntity<ProdutoResponse> cadastrar(@RequestBody ProdutoRequest request) {
         ProdutoResponse response = service.salvar(request);
-        return ResponseEntity.created(URI.create("/produtos/" + response.getId())).body(response);
+        return ResponseEntity.created(URI.create("/produtos/" + response.id())).body(response);
     }
 
     @GetMapping

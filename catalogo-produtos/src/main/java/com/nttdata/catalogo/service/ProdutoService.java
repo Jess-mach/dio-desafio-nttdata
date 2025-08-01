@@ -18,30 +18,30 @@ public class ProdutoService {
 
     public ProdutoResponse salvar(ProdutoRequest request) {
         Produto produto = new Produto();
-        produto.setNome(request.getNome());
-        produto.setDescricao(request.getDescricao());
-        produto.setPreco(request.getPreco());
+        produto.setName(request.getName());
+        produto.setDescription(request.getDescription());
+        produto.setPrice(request.getPrice());
         Produto salvo = repository.save(produto);
-        return new ProdutoResponse(salvo.getId(), salvo.getNome(), salvo.getDescricao(), salvo.getPreco());
+        return new ProdutoResponse(salvo.getId(), salvo.getName(), salvo.getDescription(), salvo.getPrice());
     }
 
     public Page<ProdutoResponse> listar(Pageable pageable) {
         return repository.findAll(pageable).map(p ->
-                new ProdutoResponse(p.getId(), p.getNome(), p.getDescricao(), p.getPreco()));
+                new ProdutoResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice()));
     }
 
     public Optional<ProdutoResponse> buscarPorId(Long id) {
         return repository.findById(id).map(p ->
-                new ProdutoResponse(p.getId(), p.getNome(), p.getDescricao(), p.getPreco()));
+                new ProdutoResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice()));
     }
 
     public Optional<ProdutoResponse> atualizar(Long id, ProdutoRequest request) {
         return repository.findById(id).map(produto -> {
-            produto.setNome(request.getNome());
-            produto.setDescricao(request.getDescricao());
-            produto.setPreco(request.getPreco());
+            produto.setName(request.getName());
+            produto.setDescription(request.getDescription());
+            produto.setPrice(request.getPrice());
             Produto atualizado = repository.save(produto);
-            return new ProdutoResponse(atualizado.getId(), atualizado.getNome(), atualizado.getDescricao(), atualizado.getPreco());
+            return new ProdutoResponse(atualizado.getId(), atualizado.getName(), atualizado.getDescription(), atualizado.getPrice());
         });
     }
 
