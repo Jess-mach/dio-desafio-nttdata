@@ -6,12 +6,11 @@ import com.nttdata.pedidos.dto.ProductResponse;
 import com.nttdata.pedidos.dto.OrderResponse;
 import com.nttdata.pedidos.model.OrderEntity;
 import com.nttdata.pedidos.repository.OrderRepository;
+import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,7 +28,7 @@ public class OrderService {
     public OrderResponse createOrder(OrderRequest request) {
         List<OrderEntity.ProductInfo> productInfos = request.productIds().stream()
                 .map(id -> {
-                    ProductResponse product = productClient.getProductById(id); // Chamada via Feign
+                    ProductResponse product = findProductById(id);
                     OrderEntity.ProductInfo info = new OrderEntity.ProductInfo();
                     info.setId(product.id());
                     info.setName(product.name());
@@ -46,6 +45,14 @@ public class OrderService {
         OrderEntity saved = orderRepository.save(entity);
 
         return mapToResponse(saved);
+    }
+
+    private ProductResponse findProductById(Long id) {
+        try {
+            return productClient.findById(id);
+        } catch (FeignException e) {
+            throw new EntityNotFoundException("Produto não encontrado com ID: " + id);
+        }
     }
 
     public OrderResponse getOrderById(Long id) {
@@ -67,7 +74,7 @@ public class OrderService {
 
         List<OrderEntity.ProductInfo> updatedProducts = request.productIds().stream()
                 .map(productId -> {
-                    ProductResponse product = productClient.getProductById(productId);
+                    ProductResponse product = findProductById(productId);
                     OrderEntity.ProductInfo info = new OrderEntity.ProductInfo();
                     info.setId(product.id());
                     info.setName(product.name());

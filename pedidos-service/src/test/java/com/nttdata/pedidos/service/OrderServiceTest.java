@@ -52,8 +52,8 @@ class OrderServiceTest {
                 .price(BigDecimal.valueOf(20))
                 .build();
 
-        when(productClient.getProductById(1L)).thenReturn(p1);
-        when(productClient.getProductById(2L)).thenReturn(p2);
+        when(productClient.findById(1L)).thenReturn(p1);
+        when(productClient.findById(2L)).thenReturn(p2);
 
         OrderEntity toSave = new OrderEntity();
         toSave.setCustomerName("John");
@@ -144,7 +144,7 @@ class OrderServiceTest {
                 .description("Desc")
                 .price(BigDecimal.valueOf(5))
                 .build();
-        when(productClient.getProductById(1L)).thenReturn(p);
+        when(productClient.findById(1L)).thenReturn(p);
 
         OrderEntity saved = new OrderEntity();
         saved.setId(1L);

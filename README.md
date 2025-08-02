@@ -1,266 +1,229 @@
 # 🧪 Projeto de Microserviços com Spring Boot, Spring Cloud e Docker
 
-Este projeto foi desenvolvido como parte do desafio do bootcamp NTT Data da DIO. O sistema é composto por quatro microsserviços principais:
+Este repositório contém quatro microsserviços desenvolvidos no Bootcamp NTT Data da DIO:
 
-- 📦 `catalogo-produtos`: gerenciamento de produtos.
-- 🛒 `servico-pedidos`: processamento de pedidos.
-- 📡 `eureka-server`: service discovery.
-- 🚪 `api-gateway`: roteamento e autenticação.
+* 📦 **catalogo-produtos**: gerenciamento de produtos
+* 🛒 **servico-pedidos**: processamento de pedidos
+* 📡 **eureka-server**: service discovery (Eureka)
+* 🚪 **api-gateway**: roteamento e autenticação de requisições
 
 ---
 
-## 🐳 Como Executar via Docker Compose
+## 📋 Tecnologias Utilizadas
+
+* Java 21
+* Spring Boot 3.2.x
+* Spring Cloud (Eureka, Gateway)
+* Maven
+* Docker & Docker Compose
+* H2 (ambiente de desenvolvimento)
+* Swagger/OpenAPI
+* JUnit & Mockito
+* Cobertura de testes com JaCoCo
+
+---
+
+## 🚀 Execução Local (sem Docker)
 
 ### Pré-requisitos
 
-- Docker e Docker Compose instalados
+* JDK 21 instalado
+* Maven (opcional: use `./mvnw` incluso)
+* Porta `8761`, `8100`, `8200` e `8080` livres
 
-### Passos:
+### Passos
+
+1. **Gerar artefatos**
+
+   ```bash
+   cd catalogo-produtos && ./mvnw clean package -DskipTests
+   cd ../servico-pedidos && ./mvnw clean package -DskipTests
+   cd ../eureka-server && ./mvnw clean package -DskipTests
+   cd ../api-gateway && ./mvnw clean package -DskipTests
+   cd ..
+   ```
+
+2. **Executar cada microsserviço** (em terminais separados):
+
+   ```bash
+   # Service Discovery
+   cd eureka-server && java -jar target/eureka-server.jar
+
+   # Catálogo de Produtos
+   cd ../catalogo-produtos && java -jar target/catalogo-produtos.jar
+
+   # Serviço de Pedidos
+   cd ../servico-pedidos && java -jar target/servico-pedidos.jar
+
+   # API Gateway
+   cd ../api-gateway && java -jar target/api-gateway.jar
+   ```
+
+3. **Acessar endpoints**
+
+   * Eureka Server: `http://localhost:8761`
+   * Catalogo de Produtos: `http://localhost:8100` (também via Gateway em `http://localhost:8080/products`)
+   * Serviço de Pedidos: `http://localhost:8200` (via Gateway em `http://localhost:8080/orders`)
+   * Gateway Swagger UI: `http://localhost:8080/swagger-ui.html`
+
+---
+
+## 🐳 Execução via Docker Compose
+
+### Pré-requisitos
+
+* Docker e Docker Compose instalados
+* Portas `8761:8761`, `8100:8100`, `8200:8200`, `8080:8080` livres
+
+### Passos
+
+1. **Gerar JARs** (igual à seção acima):
+
+   ```bash
+   ./mvnw clean package -DskipTests
+   ```
+2. **Subir containers**
+
+   ```bash
+   docker-compose up --build -d
+   ```
+3. **Verificar**
+
+   * `docker ps` para containers em execução
+   * Acesse `http://localhost:8761` para conferir registro dos serviços
+
+---
+
+## 🔍 Testes de API via `curl`
+
+> Se você possui autenticação JWT, primeiro faça login e salve o token:
 
 ```bash
-# 1. Gere os JARs de cada microserviço
-cd catalogo-produtos && ./mvnw clean package -DskipTests
-cd ../servico-pedidos && ./mvnw clean package -DskipTests
-cd ../api-gateway && ./mvnw clean package -DskipTests
-cd ../eureka-server && ./mvnw clean package -DskipTests
-
-# 2. Volte à raiz e execute o docker-compose
-cd ..
-docker-compose up --build
-
-Acesso aos serviços:
-Serviço	URL
-Eureka Server	http://localhost:8761
-API Gateway	http://localhost:8080
-Catálogo de Produtos	http://localhost:8080/products
-Serviço de Pedidos	http://localhost:8080/orders
-
-⚠️ Lembre-se de que as requisições passam pelo API Gateway.
-
-🧪 Como Testar
-Verificar o Eureka
-Acesse http://localhost:8761 e confirme que todos os serviços estão registrados.
-
-Testar produtos
-
-curl http://localhost:8080/products
-Testar pedidos
-
-
-curl -X POST http://localhost:8080/orders \
+TOKEN=$(curl -s -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"productId":1,"quantity":2}'
-🧾 Informações do Projeto
-Desenvolvedor: Jessica Machada Franco
+  -d '{"username":"usuario","password":"senha"}' \
+  | jq -r .access_token)
+```
 
-Bootcamp: NTT Data Java & Spring Boot - DIO
+### 1. Catálogo de Produtos
 
-Data: Agosto de 2025
+* **Listar produtos**
 
-Tecnologias:
+  ```bash
+  curl -X GET http://localhost:8080/products \
+    -H "Authorization: Bearer $TOKEN"
+  ```
 
-Java 21
+* **Criar produto**
 
-Spring Boot 3.2.x
+  ```bash
+  curl -X POST http://localhost:8080/products \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "name": "Notebook Gamer",
+      "description": "RTX 4060, i7, 16GB RAM",
+      "price": 7500.00
+    }'
+  ```
 
-Spring Cloud (Eureka, Gateway)
+* **Buscar por ID**
 
-Docker
+  ```bash
+  curl -X GET http://localhost:8080/products/1 \
+    -H "Authorization: Bearer $TOKEN"
+  ```
 
-Swagger/OpenAPI
+* **Atualizar produto**
 
-Testes com JUnit e Mockito
+  ```bash
+  curl -X PUT http://localhost:8080/products/1 \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "name": "Notebook Gamer Ultra",
+      "description": "RTX 4070, i9, 32GB RAM",
+      "price": 9500.00
+    }'
+  ```
 
-Cobertura com JaCoCo
+* **Deletar produto**
 
-💡 Dicas
-Use o Swagger para explorar os endpoints:
+  ```bash
+  curl -X DELETE http://localhost:8080/products/1 \
+    -H "Authorization: Bearer $TOKEN"
+  ```
 
-http://localhost:8080/swagger-ui.html
+### 2. Serviço de Pedidos
 
-Verifique os logs para confirmar a comunicação entre serviços:
+* **Listar pedidos**
 
-Eureka detectando os serviços
+  ```bash
+  curl -X GET http://localhost:8080/orders \
+    -H "Authorization: Bearer $TOKEN"
+  ```
 
-API Gateway roteando para os microserviços
+* **Criar pedido**
 
-# 🧪 Projeto de Microserviços com Spring Boot, Spring Cloud e Docker
+  ```bash
+  curl -X POST http://localhost:8080/orders \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "customerName": "João da Silva",
+      "customerEmail": "joao@example.com",
+      "productIds": [1, 2]
+    }'
+  ```
 
-Este projeto foi desenvolvido como parte do desafio do bootcamp **NTT Data** da **DIO**. O sistema é composto por quatro microsserviços principais:
+* **Buscar por ID**
 
-- 📦 `catalogo-produtos`: gerenciamento de produtos.
-- 🛒 `servico-pedidos`: processamento de pedidos.
-- 📡 `eureka-server`: service discovery.
-- 🚪 `api-gateway`: roteamento e autenticação de requisições.
+  ```bash
+  curl -X GET http://localhost:8080/orders/1 \
+    -H "Authorization: Bearer $TOKEN"
+  ```
 
-...
+* **Atualizar pedido**
+
+  ```bash
+  curl -X PUT http://localhost:8080/orders/1 \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "customerName": "João Atualizado",
+      "customerEmail": "joao.new@example.com",
+      "productIds": [2, 3]
+    }'
+  ```
+
+* **Deletar pedido**
+
+  ```bash
+  curl -X DELETE http://localhost:8080/orders/1 \
+    -H "Authorization: Bearer $TOKEN"
+  ```
+
+---
+
+## 🐛 Logs e Debug
+
+* Consulte logs de cada serviço para verificar portas e registros no Eureka.
+* No Docker Compose, use `docker logs <container>`.
+
+---
 
 ## 📬 Contato
 
-Caso precise entrar em contato para dúvidas ou demonstração:
+*Desenvolvedor:* Jessica Machado Franco
+*LinkedIn:* [https://www.linkedin.com/in/jessica-machado-franco-4aa149249](https://www.linkedin.com/in/jessica-machado-franco-4aa149249)
+*Data:* Agosto/2025
 
-Jessica Machado Frando - [https://www.linkedin.com/in/jessica-machado-franco-4aa149249/]
 
+### Adicionais:
+Collections para o postman:
+ Order Simulator Test Collection.postman_collection.json
 
-# ✅ Testes de API - Projeto de Microserviços (Produtos e Pedidos)
-
-Este documento descreve como testar os microserviços utilizando `curl`, passando pelo API Gateway com autenticação JWT.
-
----
-
-## 🧾 Pré-requisitos
-
-- Docker e Docker Compose configurados.
-- API Gateway rodando na porta `8080`.
-- Token JWT válido.
-- Microserviços de produtos (`/products`) e pedidos (`/orders`) registrados no Eureka e acessíveis via Gateway.
-
----
-
-## 🔐 Autenticação
-
-> Substitua `usuario` e `senha` por credenciais válidas, caso tenha um serviço de autenticação ativo.
-
-```bash
-curl -X POST http://localhost:8080/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"usuario", "password":"senha"}'
-```
-
-A resposta conterá o `access_token`. Use-o nos comandos abaixo substituindo `<SEU_TOKEN>`.
-
----
-
-## 🛒 Microserviço de Produtos
-
-Base URL: `http://localhost:8080/products`
-
-### ▶️ Criar Produto
-
-```bash
-curl -X POST http://localhost:8080/products \
-  -H "Authorization: Bearer <SEU_TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Notebook Gamer",
-    "description": "RTX 4060, i7, 16GB RAM",
-    "price": 7500.00
-  }'
-```
-
----
-
-### 📃 Listar Produtos (com paginação)
-
-```bash
-curl -X GET "http://localhost:8080/products?page=0&size=10" \
-  -H "Authorization: Bearer <SEU_TOKEN>"
-```
-
----
-
-### 🔎 Buscar Produto por ID
-
-```bash
-curl -X GET http://localhost:8080/products/1 \
-  -H "Authorization: Bearer <SEU_TOKEN>"
-```
-
----
-
-### ✏️ Atualizar Produto
-
-```bash
-curl -X PUT http://localhost:8080/products/1 \
-  -H "Authorization: Bearer <SEU_TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Notebook Gamer Ultra",
-    "description": "RTX 4070, i9, 32GB RAM",
-    "price": 9500.00
-  }'
-```
-
----
-
-### ❌ Deletar Produto
-
-```bash
-curl -X DELETE http://localhost:8080/products/1 \
-  -H "Authorization: Bearer <SEU_TOKEN>"
-```
-
----
-
-## 📦 Microserviço de Pedidos
-
-Base URL: `http://localhost:8080/orders`
-
-### ▶️ Criar Pedido
-
-```bash
-curl -X POST http://localhost:8080/orders \
-  -H "Authorization: Bearer <SEU_TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "customerName": "João da Silva",
-    "productIds": [1, 2]
-  }'
-```
-
----
-
-### 📃 Listar Pedidos
-
-```bash
-curl -X GET http://localhost:8080/orders \
-  -H "Authorization: Bearer <SEU_TOKEN>"
-```
-
----
-
-### 🔎 Buscar Pedido por ID
-
-```bash
-curl -X GET http://localhost:8080/orders/1 \
-  -H "Authorization: Bearer <SEU_TOKEN>"
-```
-
----
-
-### ✏️ Atualizar Pedido
-
-```bash
-curl -X PUT http://localhost:8080/orders/1 \
-  -H "Authorization: Bearer <SEU_TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "customerName": "João Atualizado",
-    "productIds": [2, 3]
-  }'
-```
-
----
-
-### ❌ Deletar Pedido
-
-```bash
-curl -X DELETE http://localhost:8080/orders/1 \
-  -H "Authorization: Bearer <SEU_TOKEN>"
-```
-
----
-
-## 🧪 Dica: Automatize com script
-
-Você pode criar um arquivo `.sh` com todos esses comandos e executar os testes de forma automatizada.
-
----
-
-## 🧩 Observações
-
-- Todos os endpoints são acessados via **API Gateway**.
-- O token JWT precisa estar presente em **todas** as requisições (exceto login).
-- Se um produto não existir, o pedido será rejeitado.
-
----
+Subir apenas o eureka e api gateway via docker compose: 
+  ```bash
+docker-compose -f docker-compose-eureka-gateway.yml up --build -d
+  ```

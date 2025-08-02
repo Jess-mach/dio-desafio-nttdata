@@ -22,8 +22,8 @@ class ProductClientTest {
 
     @Test
     @DisplayName("Método getProductById deve ter @GetMapping com '/{id}'")
-    void testGetProductByIdMapping() throws NoSuchMethodException {
-        Method m = ProductClient.class.getMethod("getProductById", Long.class);
+    void testFindByIdMapping() throws NoSuchMethodException {
+        Method m = ProductClient.class.getMethod("findById", Long.class);
         GetMapping gm = m.getAnnotation(GetMapping.class);
         assertNotNull(gm, "Esperava @GetMapping no método");
         assertArrayEquals(new String[]{"/{id}"}, gm.value());

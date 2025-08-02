@@ -56,7 +56,7 @@ class OrderControllerIntegrationTest {
                 .price(BigDecimal.valueOf(10.0))
                 .build();
 
-        when(productClient.getProductById(anyLong())).thenReturn(product);
+        when(productClient.findById(anyLong())).thenReturn(product);
 
         OrderRequest request = new OrderRequest(
                 "John Doe",
@@ -83,7 +83,7 @@ class OrderControllerIntegrationTest {
                 .description("Segundo produto")
                 .price(BigDecimal.valueOf(20.0))
                 .build();
-        when(productClient.getProductById(anyLong())).thenReturn(product);
+        when(productClient.findById(anyLong())).thenReturn(product);
 
         OrderRequest createReq = new OrderRequest(
                 "Jane Doe",
@@ -117,7 +117,7 @@ class OrderControllerIntegrationTest {
                 .description("Terceiro produto")
                 .price(BigDecimal.valueOf(30.0))
                 .build();
-        when(productClient.getProductById(anyLong())).thenReturn(product);
+        when(productClient.findById(anyLong())).thenReturn(product);
 
         OrderRequest req1 = new OrderRequest("A", "a@example.com", List.of(3L));
         OrderRequest req2 = new OrderRequest("B", "b@example.com", List.of(3L));
@@ -146,7 +146,7 @@ class OrderControllerIntegrationTest {
                 .description("Produto original")
                 .price(BigDecimal.valueOf(40.0))
                 .build();
-        when(productClient.getProductById(anyLong())).thenReturn(original);
+        when(productClient.findById(anyLong())).thenReturn(original);
 
         OrderRequest createReq = new OrderRequest("C", "c@example.com", List.of(4L));
         String json = mockMvc.perform(post("/orders")
@@ -165,7 +165,7 @@ class OrderControllerIntegrationTest {
                 .description("Produto atualizado")
                 .price(BigDecimal.valueOf(50.0))
                 .build();
-        when(productClient.getProductById(5L)).thenReturn(updatedProd);
+        when(productClient.findById(5L)).thenReturn(updatedProd);
 
         OrderRequest updateReq = new OrderRequest("C Updated", "c_updated@example.com", List.of(5L));
 

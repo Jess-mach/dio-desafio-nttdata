@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 
-@Tag(name = "Orders", description = "API para gerenciamento de pedidos")
+@Tag(name = "Orders", description = "API for order management")
 @RestController
 @RequestMapping("/orders")
 @RequiredArgsConstructor
@@ -23,10 +23,10 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @Operation(summary = "Criar novo pedido")
+    @Operation(summary = "Create new order")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Pedido criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos")
+            @ApiResponse(responseCode = "201", description = "Order created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(@RequestBody @Valid OrderRequest request) {
@@ -35,30 +35,30 @@ public class OrderController {
                 .body(response);
     }
 
-    @Operation(summary = "Buscar pedido por ID")
+    @Operation(summary = "Get order by ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Pedido encontrado"),
-            @ApiResponse(responseCode = "404", description = "Pedido não encontrado")
+            @ApiResponse(responseCode = "200", description = "Order found"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
     })
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
         return ResponseEntity.ok(orderService.getOrderById(id));
     }
 
-    @Operation(summary = "Listar todos os pedidos")
+    @Operation(summary = "List all orders")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de pedidos retornada com sucesso")
+            @ApiResponse(responseCode = "200", description = "Order list returned successfully")
     })
     @GetMapping
     public ResponseEntity<List<OrderResponse>> getAllOrders() {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
-    @Operation(summary = "Atualizar um pedido existente")
+    @Operation(summary = "Update an existing order")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Pedido atualizado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Pedido não encontrado"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos")
+            @ApiResponse(responseCode = "200", description = "Order updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Order not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PutMapping("/{id}")
     public ResponseEntity<OrderResponse> updateOrder(@PathVariable Long id, @RequestBody @Valid OrderRequest request) {
