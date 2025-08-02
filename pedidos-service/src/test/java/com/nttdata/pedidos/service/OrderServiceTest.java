@@ -1,11 +1,13 @@
-
+// src/test/java/com/nttdata/pedidos/service/OrderServiceTest.java
 package com.nttdata.pedidos.service;
-
 
 import com.nttdata.pedidos.client.ProductClient;
 import com.nttdata.pedidos.dto.OrderRequest;
-import com.nttdata.pedidos.dto.ProductResponse;
 import com.nttdata.pedidos.dto.OrderResponse;
+import com.nttdata.pedidos.dto.ProductResponse;
+import com.nttdata.pedidos.model.OrderEntity;
+import com.nttdata.pedidos.repository.OrderRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,63 +26,138 @@ import static org.mockito.Mockito.*;
 class OrderServiceTest {
 
     @Mock
+    private ProductClient productClient;
+
+    @Mock
     private OrderRepository orderRepository;
 
     @InjectMocks
     private OrderService orderService;
 
     @Test
-    @DisplayName("Deve salvar um novo pedido com sucesso")
-    void shouldSaveOrderSuccessfully() {
-        Order order = new Order(null, 1L, 2);
-        Order saved = new Order(1L, 1L, 2);
+    @DisplayName("Criar pedido - sucesso")
+    void testCreateOrder() {
+        OrderRequest request = new OrderRequest("John", "john@example.com", List.of(1L, 2L));
 
-        when(orderRepository.save(order)).thenReturn(saved);
+        ProductResponse p1 = ProductResponse.builder()
+                .id(1L)
+                .name("P1")
+                .description("Desc1")
+                .price(BigDecimal.valueOf(10))
+                .build();
+        ProductResponse p2 = ProductResponse.builder()
+                .id(2L)
+                .name("P2")
+                .description("Desc2")
+                .price(BigDecimal.valueOf(20))
+                .build();
 
-        Order result = orderService.createOrder(order);
+        when(productClient.getProductById(1L)).thenReturn(p1);
+        when(productClient.getProductById(2L)).thenReturn(p2);
 
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals(1L, result.getProductId());
-        assertEquals(2, result.getQuantity());
-        verify(orderRepository).save(order);
+        OrderEntity toSave = new OrderEntity();
+        toSave.setCustomerName("John");
+        toSave.setCustomerEmail("john@example.com");
+        toSave.setProducts(List.of(
+                new OrderEntity.ProductInfo(1L, "P1", BigDecimal.valueOf(10)),
+                new OrderEntity.ProductInfo(2L, "P2", BigDecimal.valueOf(20))
+        ));
+
+        OrderEntity saved = new OrderEntity();
+        saved.setId(100L);
+        saved.setCustomerName("John");
+        saved.setCustomerEmail("john@example.com");
+        saved.setProducts(toSave.getProducts());
+
+        when(orderRepository.save(any(OrderEntity.class))).thenReturn(saved);
+
+        OrderResponse response = orderService.createOrder(request);
+
+        assertNotNull(response.id());
+        assertEquals("John", response.customerName());
+        assertEquals(2, response.products().size());
+        verify(orderRepository).save(any(OrderEntity.class));
     }
 
     @Test
-    @DisplayName("Deve retornar um pedido pelo ID")
-    void shouldFindOrderById() {
-        Order order = new Order(1L, 1L, 2);
-        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+    @DisplayName("Buscar pedido por ID - sucesso")
+    void testGetOrderById() {
+        OrderEntity entity = new OrderEntity();
+        entity.setId(1L);
+        entity.setCustomerName("Jane");
+        entity.setCustomerEmail("jane@example.com");
+        entity.setProducts(List.of());
 
-        Order result = orderService.getOrderById(1L);
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(entity));
 
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
+        OrderResponse response = orderService.getOrderById(1L);
+
+        assertEquals("Jane", response.customerName());
+        assertTrue(response.products().isEmpty());
     }
 
     @Test
-    @DisplayName("Deve lançar exceção quando o pedido não for encontrado")
-    void shouldThrowWhenOrderNotFound() {
-        when(orderRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThrows(OrderNotFoundException.class, () -> orderService.getOrderById(99L));
+    @DisplayName("Buscar pedido por ID - não encontrado")
+    void testGetOrderByIdNotFound() {
+        when(orderRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> orderService.getOrderById(1L));
     }
 
     @Test
-    void testCreateOrderSuccessfully() {
-        ProductClient productClient = mock(ProductClient.class);
-        OrderService service = new OrderService(productClient);
+    @DisplayName("Listar todos os pedidos")
+    void testGetAllOrders() {
+        OrderEntity e1 = new OrderEntity();
+        e1.setId(1L);
+        e1.setCustomerName("A");
+        e1.setCustomerEmail("a@example.com");
+        e1.setProducts(List.of());
 
-        when(productClient.getProductById(1L)).thenReturn(
-                new ProductResponse(1L, "Product A", "Desc", new BigDecimal("10.00")));
-        when(productClient.getProductById(2L)).thenReturn(
-                new ProductResponse(2L, "Product B", "Desc", new BigDecimal("20.00")));
+        OrderEntity e2 = new OrderEntity();
+        e2.setId(2L);
+        e2.setCustomerName("B");
+        e2.setCustomerEmail("b@example.com");
+        e2.setProducts(List.of());
 
-        OrderRequest request = new OrderRequest(List.of(1L, 2L));
-        OrderResponse order = service.createOrder(request);
+        when(orderRepository.findAll()).thenReturn(List.of(e1, e2));
 
-        assertNotNull(order);
-        assertEquals(2, order.products().size());
-        assertEquals(new BigDecimal("30.00"), order.totalAmount());
+        var responses = orderService.getAllOrders();
+
+        assertEquals(2, responses.size());
+    }
+
+    @Test
+    @DisplayName("Atualizar pedido - sucesso")
+    void testUpdateOrder() {
+        OrderRequest request = new OrderRequest("Joe", "joe@example.com", List.of(1L));
+
+        OrderEntity existing = new OrderEntity();
+        existing.setId(1L);
+        existing.setCustomerName("Old");
+        existing.setCustomerEmail("old@example.com");
+        existing.setProducts(List.of());
+
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        ProductResponse p = ProductResponse.builder()
+                .id(1L)
+                .name("P")
+                .description("Desc")
+                .price(BigDecimal.valueOf(5))
+                .build();
+        when(productClient.getProductById(1L)).thenReturn(p);
+
+        OrderEntity saved = new OrderEntity();
+        saved.setId(1L);
+        saved.setCustomerName("Joe");
+        saved.setCustomerEmail("joe@example.com");
+        saved.setProducts(List.of(new OrderEntity.ProductInfo(1L, "P", BigDecimal.valueOf(5))));
+
+        when(orderRepository.save(existing)).thenReturn(saved);
+
+        OrderResponse resp = orderService.updateOrder(1L, request);
+
+        assertEquals("Joe", resp.customerName());
+        assertEquals(1, resp.products().size());
+        verify(orderRepository).save(existing);
     }
 }

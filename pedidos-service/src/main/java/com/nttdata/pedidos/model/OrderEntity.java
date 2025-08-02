@@ -29,8 +29,6 @@ public class OrderEntity {
     @CollectionTable(name = "order_products", joinColumns = @JoinColumn(name = "order_id"))
     private List<ProductInfo> products;
 
-    // Getters and setters
-
     @Embeddable
     @Getter
     @Setter
@@ -40,7 +38,5 @@ public class OrderEntity {
         private Long id;
         private String name;
         private BigDecimal price;
-
-        // Getters and setters
     }
 }

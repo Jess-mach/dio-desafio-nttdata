@@ -4,7 +4,7 @@ import java.util.List;
 
 
 public record OrderResponse(
-        String id,
+        Long id,
         String customerName,
         String customerEmail,
         List<ProductResponse> products

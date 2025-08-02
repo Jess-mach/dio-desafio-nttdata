@@ -97,7 +97,7 @@ public class OrderService {
                 }).toList();
 
         return new OrderResponse(
-                UUID.randomUUID().toString(),
+                order.getId(),
                 order.getCustomerName(),
                 order.getCustomerEmail(),
                 productDTOs

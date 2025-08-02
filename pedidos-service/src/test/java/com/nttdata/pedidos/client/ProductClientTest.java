@@ -1,22 +1,31 @@
-
 package com.nttdata.pedidos.client;
 
-import com.nttdata.pedidos.dto.ProductResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.lang.reflect.Method;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class ProductClientTest {
 
     @Test
-    @DisplayName("Simulação de instanciamento de ProductResponse recebido do ProductClient")
-    void shouldInstantiateProductResponse() {
-        ProductResponse response = new ProductResponse(1L, "Produto Teste", "Descrição", 10.0);
+    @DisplayName("ProductClient deve estar anotado com @FeignClient(name='catalogo-produtos', path='/produtos')")
+    void testFeignClientAnnotation() {
+        FeignClient ann = ProductClient.class.getAnnotation(FeignClient.class);
+        assertNotNull(ann, "Esperava @FeignClient presente na interface");
+        assertEquals("catalogo-produtos", ann.name());
+        assertEquals("/produtos", ann.path());
+    }
 
-        assertEquals(1L, response.getId());
-        assertEquals("Produto Teste", response.getName());
-        assertEquals("Descrição", response.getDescription());
-        assertEquals(10.0, response.getPrice());
+    @Test
+    @DisplayName("Método getProductById deve ter @GetMapping com '/{id}'")
+    void testGetProductByIdMapping() throws NoSuchMethodException {
+        Method m = ProductClient.class.getMethod("getProductById", Long.class);
+        GetMapping gm = m.getAnnotation(GetMapping.class);
+        assertNotNull(gm, "Esperava @GetMapping no método");
+        assertArrayEquals(new String[]{"/{id}"}, gm.value());
     }
 }
