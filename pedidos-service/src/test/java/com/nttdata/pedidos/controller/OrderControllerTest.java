@@ -1,11 +1,12 @@
 
-package com.nttdata.orders.controller;
+package com.nttdata.pedidos.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nttdata.orders.dto.OrderRequest;
-import com.nttdata.orders.model.Order;
-import com.nttdata.orders.service.OrderService;
-import com.nttdata.orders.exception.OrderNotFoundException;
+import com.nttdata.pedidos.dto.OrderRequest;
+import com.nttdata.pedidos.dto.OrderResponse;
+import com.nttdata.pedidos.dto.ProductResponse;
+import com.nttdata.pedidos.model.OrderEntity;
+import com.nttdata.pedidos.service.OrderService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -35,10 +39,12 @@ class OrderControllerTest {
     @Test
     @DisplayName("Deve criar um pedido com sucesso via POST /orders")
     void shouldCreateOrder() throws Exception {
-        OrderRequest request = new OrderRequest(1L, 2);
-        Order savedOrder = new Order(1L, 1L, 2);
+        OrderRequest request = new OrderRequest("Jessica", "email@email.com", List.of(1L, 2L));
+        OrderResponse savedOrder = new OrderResponse(1L, "Jessica", "email@email.com",
+                List.of(new ProductResponse(1L, "Produto 1", "", BigDecimal.ONE),
+                        new ProductResponse(2L, "Produto 2", "", BigDecimal.TWO)));
 
-        when(orderService.createOrder(any(Order.class))).thenReturn(savedOrder);
+        when(orderService.createOrder(any())).thenReturn(savedOrder);
 
         mockMvc.perform(post("/orders")
                 .contentType(MediaType.APPLICATION_JSON)

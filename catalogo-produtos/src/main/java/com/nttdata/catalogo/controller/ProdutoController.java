@@ -1,10 +1,11 @@
 package com.nttdata.catalogo.controller;
 
-import com.nttdata.catalogo.dto.ProdutoRequest;
-import com.nttdata.catalogo.dto.ProdutoResponse;
-import com.nttdata.catalogo.service.ProdutoService;
+import com.nttdata.catalogo.dto.ProductRequest;
+import com.nttdata.catalogo.dto.ProductResponse;
+import com.nttdata.catalogo.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,24 +20,24 @@ import java.net.URI;
 public class ProdutoController {
 
     @Autowired
-    private ProdutoService service;
+    private ProductService service;
 
     @PostMapping
     @Operation(summary = "Cadastrar novo produto")
-    public ResponseEntity<ProdutoResponse> cadastrar(@RequestBody ProdutoRequest request) {
-        ProdutoResponse response = service.salvar(request);
+    public ResponseEntity<ProductResponse> cadastrar(@RequestBody @Valid ProductRequest request) {
+        ProductResponse response = service.salvar(request);
         return ResponseEntity.created(URI.create("/produtos/" + response.id())).body(response);
     }
 
     @GetMapping
     @Operation(summary = "Listar produtos com paginação")
-    public Page<ProdutoResponse> listar(Pageable pageable) {
+    public Page<ProductResponse> listar(Pageable pageable) {
         return service.listar(pageable);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar produto por ID")
-    public ResponseEntity<ProdutoResponse> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<ProductResponse> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -44,7 +45,7 @@ public class ProdutoController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar produto existente")
-    public ResponseEntity<ProdutoResponse> atualizar(@PathVariable Long id, @RequestBody ProdutoRequest request) {
+    public ResponseEntity<ProductResponse> atualizar(@PathVariable Long id, @RequestBody @Valid ProductRequest request) {
         return service.atualizar(id, request)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

@@ -1,8 +1,8 @@
 
-package com.nttdata.orders.exception;
+package com.nttdata.pedidos.exception;
 
-import com.nttdata.orders.controller.OrderController;
-import com.nttdata.orders.service.OrderService;
+import com.nttdata.pedidos.controller.OrderController;
+import com.nttdata.pedidos.service.OrderService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

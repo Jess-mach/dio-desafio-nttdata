@@ -1,11 +1,11 @@
 
-package com.nttdata.orders.client;
+package com.nttdata.pedidos.client;
 
-import com.nttdata.orders.dto.ProductResponse;
+import com.nttdata.pedidos.dto.ProductResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ProductClientTest {
 

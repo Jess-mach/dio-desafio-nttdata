@@ -1,11 +1,10 @@
 package com.nttdata.catalogo;
 
-import com.nttdata.catalogo.dto.ProdutoRequest;
-import com.nttdata.catalogo.model.Produto;
-import com.nttdata.catalogo.repository.ProdutoRepository;
-import com.nttdata.catalogo.service.ProdutoService;
+import com.nttdata.catalogo.dto.ProductRequest;
+import com.nttdata.catalogo.model.ProductEntity;
+import com.nttdata.catalogo.repository.ProductRepository;
+import com.nttdata.catalogo.service.ProductService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.data.domain.*;
 
 import java.math.BigDecimal;
@@ -15,13 +14,13 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class ProdutoServiceTest {
+public class ProductServiceTest {
 
-    private ProdutoRepository repository = mock(ProdutoRepository.class);
-    private ProdutoService service = new ProdutoService();
+    private ProductRepository repository = mock(ProductRepository.class);
+    private ProductService service = new ProductService();
 
-    public ProdutoServiceTest() {
-        service = new ProdutoService();
+    public ProductServiceTest() {
+        service = new ProductService();
         service.getClass().getDeclaredFields()[0].setAccessible(true);
         try {
             service.getClass().getDeclaredFields()[0].set(service, repository);
@@ -30,12 +29,12 @@ public class ProdutoServiceTest {
 
     @Test
     public void deveSalvarProduto() {
-        ProdutoRequest req = new ProdutoRequest();
+        ProductRequest req = new ProductRequest();
         req.setNome("Teste");
         req.setDescricao("Descricao");
         req.setPreco(BigDecimal.TEN);
 
-        Produto salvo = new Produto();
+        ProductEntity salvo = new ProductEntity();
         salvo.setId(1L);
         salvo.setNome("Teste");
         salvo.setDescricao("Descricao");
@@ -49,13 +48,13 @@ public class ProdutoServiceTest {
 
     @Test
     public void deveListarProdutos() {
-        Produto produto = new Produto();
+        ProductEntity produto = new ProductEntity();
         produto.setId(1L);
         produto.setNome("Produto");
         produto.setDescricao("Desc");
         produto.setPreco(BigDecimal.TEN);
 
-        Page<Produto> page = new PageImpl<>(List.of(produto));
+        Page<ProductEntity> page = new PageImpl<>(List.of(produto));
         when(repository.findAll(any(Pageable.class))).thenReturn(page);
 
         var result = service.listar(PageRequest.of(0, 10));
@@ -64,7 +63,7 @@ public class ProdutoServiceTest {
 
     @Test
     public void deveBuscarPorId() {
-        Produto produto = new Produto();
+        ProductEntity produto = new ProductEntity();
         produto.setId(1L);
         produto.setNome("Produto");
         produto.setDescricao("Desc");

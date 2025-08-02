@@ -1,5 +1,13 @@
 package com.nttdata.pedidos.dto;
 
+import lombok.Builder;
+
 import java.math.BigDecimal;
 
-public record ProductResponse(Long id, String name, String description, BigDecimal price) {}
+@Builder
+public record ProductResponse(
+        Long id,
+        String name,
+        String description,
+        BigDecimal price
+) {}
