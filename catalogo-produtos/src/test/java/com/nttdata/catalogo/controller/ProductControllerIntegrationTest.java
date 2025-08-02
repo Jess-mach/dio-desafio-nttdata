@@ -43,8 +43,8 @@ class ProductControllerIntegrationTest {
         mockMvc.perform(get("/products")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").isEmpty());
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content").isEmpty());
     }
 
     @Test
@@ -57,10 +57,10 @@ class ProductControllerIntegrationTest {
         mockMvc.perform(get("/products")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].name").value("Notebook"))
-                .andExpect(jsonPath("$[1].name").value("Mouse"));
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content.[0].name").value("Notebook"))
+                .andExpect(jsonPath("$.content.[1].name").value("Mouse"));
     }
 
     @Test
