@@ -16,7 +16,7 @@ public class ProductService {
     @Autowired
     private ProductRepository repository;
 
-    public ProductResponse salvar(ProductRequest request) {
+    public ProductResponse create(ProductRequest request) {
         ProductEntity produto = new ProductEntity();
         produto.setName(request.getName());
         produto.setDescription(request.getDescription());
@@ -25,17 +25,17 @@ public class ProductService {
         return new ProductResponse(salvo.getId(), salvo.getName(), salvo.getDescription(), salvo.getPrice());
     }
 
-    public Page<ProductResponse> listar(Pageable pageable) {
+    public Page<ProductResponse> list(Pageable pageable) {
         return repository.findAll(pageable).map(p ->
                 new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice()));
     }
 
-    public Optional<ProductResponse> buscarPorId(Long id) {
+    public Optional<ProductResponse> getById(Long id) {
         return repository.findById(id).map(p ->
                 new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice()));
     }
 
-    public Optional<ProductResponse> atualizar(Long id, ProductRequest request) {
+    public Optional<ProductResponse> update(Long id, ProductRequest request) {
         return repository.findById(id).map(produto -> {
             produto.setName(request.getName());
             produto.setDescription(request.getDescription());
@@ -45,7 +45,7 @@ public class ProductService {
         });
     }
 
-    public void excluir(Long id) {
+    public void delete(Long id) {
         repository.deleteById(id);
     }
 }

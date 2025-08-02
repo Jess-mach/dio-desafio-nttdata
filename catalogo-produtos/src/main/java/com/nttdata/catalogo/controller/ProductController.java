@@ -21,87 +21,87 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/products")
-@Tag(name = "Products", description = "Endpoints para gerenciamento de produtos")
+@Tag(name = "Products", description = "Endpoints for product management")
 public class ProductController {
 
     @Autowired
     private ProductService service;
 
     @GetMapping
-    @Operation(summary = "Listar produtos", description = "Retorna uma página de produtos cadastrados")
+    @Operation(summary = "List products", description = "Returns a page of registered products")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso",
+            @ApiResponse(responseCode = "200", description = "Successful listing",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProductResponse.class)))
     })
-    public ResponseEntity<Page<ProductResponse>> listar(
-            @Parameter(description = "Parâmetros de paginação", required = true)
+    public ResponseEntity<Page<ProductResponse>> list(
+            @Parameter(description = "Pagination parameters", required = true)
             Pageable pageable) {
-        Page<ProductResponse> page = service.listar(pageable);
+        Page<ProductResponse> page = service.list(pageable);
         return ResponseEntity.ok(page);
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Obter produto por ID", description = "Retorna os detalhes de um produto específico")
+    @Operation(summary = "Get product by ID", description = "Returns the details of a specific product")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Produto encontrado",
+            @ApiResponse(responseCode = "200", description = "Product found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProductResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+            @ApiResponse(responseCode = "404", description = "Product not found")
     })
-    public ResponseEntity<ProductResponse> buscar(
-            @Parameter(description = "ID do produto", required = true)
+    public ResponseEntity<ProductResponse> getById(
+            @Parameter(description = "Product ID", required = true)
             @PathVariable Long id) {
-        return service.buscarPorId(id)
+        return service.getById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    @Operation(summary = "Criar novo produto", description = "Cadastra um novo produto na base de dados")
+    @Operation(summary = "Create new product", description = "Registers a new product in the database")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Produto criado com sucesso",
+            @ApiResponse(responseCode = "201", description = "Product created successfully",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProductResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos")
+            @ApiResponse(responseCode = "400", description = "Invalid data")
     })
-    public ResponseEntity<ProductResponse> criar(
-            @Parameter(description = "Dados do produto a ser criado", required = true)
+    public ResponseEntity<ProductResponse> create(
+            @Parameter(description = "Product data to be created", required = true)
             @RequestBody @Valid ProductRequest request) {
-        ProductResponse response = service.salvar(request);
+        ProductResponse response = service.create(request);
         URI uri = URI.create("/products/" + response.id());
         return ResponseEntity.created(uri).body(response);
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Atualizar produto existente", description = "Atualiza um produto por ID")
+    @Operation(summary = "Update existing product", description = "Updates a product by ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Produto atualizado com sucesso",
+            @ApiResponse(responseCode = "200", description = "Product updated successfully",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProductResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
-            @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+            @ApiResponse(responseCode = "400", description = "Invalid data"),
+            @ApiResponse(responseCode = "404", description = "Product not found")
     })
-    public ResponseEntity<ProductResponse> atualizar(
-            @Parameter(description = "ID do produto", required = true)
+    public ResponseEntity<ProductResponse> update(
+            @Parameter(description = "Product ID", required = true)
             @PathVariable Long id,
-            @Parameter(description = "Dados para atualização", required = true)
+            @Parameter(description = "Data for update", required = true)
             @RequestBody @Valid ProductRequest request) {
-        return service.atualizar(id, request)
+        return service.update(id, request)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Excluir produto", description = "Remove um produto por ID")
+    @Operation(summary = "Delete product", description = "Removes a product by ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Produto excluído com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+            @ApiResponse(responseCode = "204", description = "Product deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Product not found")
     })
-    public ResponseEntity<Void> excluir(
-            @Parameter(description = "ID do produto", required = true)
+    public ResponseEntity<Void> delete(
+            @Parameter(description = "Product ID", required = true)
             @PathVariable Long id) {
-        service.excluir(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

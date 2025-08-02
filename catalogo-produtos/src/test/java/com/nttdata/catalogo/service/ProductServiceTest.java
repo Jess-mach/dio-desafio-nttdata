@@ -61,7 +61,7 @@ class ProductServiceTest {
         Page<ProductEntity> pageEnt = new PageImpl<>(products, pageable, products.size());
         when(repository.findAll(pageable)).thenReturn(pageEnt);
 
-        Page<ProductResponse> result = service.listar(pageable);
+        Page<ProductResponse> result = service.list(pageable);
 
         assertThat(result).hasSize(2);
         assertThat(result.getContent())
@@ -79,7 +79,7 @@ class ProductServiceTest {
         ProductEntity saved = new ProductEntity(10L, "X", "Desc X", new BigDecimal("9.99"));
         when(repository.findById(10L)).thenReturn(Optional.of(saved));
 
-        Optional<ProductResponse> opt = service.buscarPorId(10L);
+        Optional<ProductResponse> opt = service.getById(10L);
 
         assertThat(opt).isPresent();
         ProductResponse resp = opt.get();
@@ -93,7 +93,7 @@ class ProductServiceTest {
     void testBuscar_WhenNotFound_ReturnsEmptyOptional() {
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
-        Optional<ProductResponse> opt = service.buscarPorId(99L);
+        Optional<ProductResponse> opt = service.getById(99L);
 
         assertThat(opt).isEmpty();
         verify(repository).findById(99L);
@@ -112,7 +112,7 @@ class ProductServiceTest {
                 reqDto.getPrice());
         when(repository.save(any(ProductEntity.class))).thenReturn(saved);
 
-        ProductResponse resp = service.salvar(reqDto);
+        ProductResponse resp = service.create(reqDto);
 
         assertThat(resp.id()).isEqualTo(5L);
         assertThat(resp.name()).isEqualTo(reqDto.getName());
@@ -135,7 +135,7 @@ class ProductServiceTest {
         updateDto.setDescription("New Desc");
         updateDto.setPrice(new BigDecimal("8.50"));
 
-        Optional<ProductResponse> opt = service.atualizar(7L, updateDto);
+        Optional<ProductResponse> opt = service.update(7L, updateDto);
 
         assertThat(opt).isPresent();
         ProductResponse resp = opt.get();
@@ -152,7 +152,7 @@ class ProductServiceTest {
     void testAtualizar_WhenNotFound_ReturnsEmptyOptional() {
         when(repository.findById(123L)).thenReturn(Optional.empty());
 
-        Optional<ProductResponse> opt = service.atualizar(123L, reqDto);
+        Optional<ProductResponse> opt = service.update(123L, reqDto);
 
         assertThat(opt).isEmpty();
         verify(repository).findById(123L);
@@ -164,7 +164,7 @@ class ProductServiceTest {
     void testExcluir_CallsRepository() {
         doNothing().when(repository).deleteById(33L);
 
-        service.excluir(33L);
+        service.delete(33L);
 
         verify(repository).deleteById(33L);
     }
