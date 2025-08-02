@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/produtos")
+@RequestMapping("/products")
 @Tag(name = "Produtos", description = "Endpoints para gerenciamento de produtos")
-public class ProdutoController {
+public class ProductController {
 
     @Autowired
     private ProductService service;
