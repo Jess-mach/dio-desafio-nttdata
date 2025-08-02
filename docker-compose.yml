@@ -1,4 +1,3 @@
-
 services:
 
   eureka-server:
@@ -10,6 +9,29 @@ services:
     networks:
       - rede-microservicos
 
+  catalogo-produtos:
+    build:
+      context: ./catalogo-produtos
+      dockerfile: Dockerfile
+    ports:
+      - "8201:8201"
+    depends_on:
+      - eureka-server
+    networks:
+      - rede-microservicos
+
+  pedidos-service:
+    build:
+      context: ./pedidos-service
+      dockerfile: Dockerfile
+    ports:
+      - "8202:8202"
+    depends_on:
+      - eureka-server
+      - catalogo-produtos
+    networks:
+      - rede-microservicos
+
   api-gateway:
     build:
       context: ./api-gateway
@@ -18,6 +40,8 @@ services:
       - "8080:8080"
     depends_on:
       - eureka-server
+      - catalogo-produtos
+      - pedidos-service
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
     networks:
